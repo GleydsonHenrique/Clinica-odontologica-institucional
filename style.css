@@ -203,9 +203,11 @@ svg {
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 50;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: saturate(160%) blur(10px);
+  /* Acima de todo o conteúdo da página (o skip-link usa 100). */
+  z-index: 90;
+  /* Fundo opaco e sem backdrop-filter: o filtro transformava o cabeçalho
+     no bloco de referência do menu fixo, encolhendo o painel do celular. */
+  background: var(--surface);
   border-bottom: 1px solid transparent;
   transition: border-color 200ms ease, box-shadow 200ms ease;
 }
@@ -1136,25 +1138,36 @@ svg {
     display: inline-flex;
   }
 
+  /* Painel do menu mobile.
+     - Posicionado em relação ao .site-header (sticky), logo abaixo dele, e
+       não à janela: assim não depende de position: fixed, que quebra se um
+       ancestral tiver filter/transform/backdrop-filter.
+     - Fechado = display: none (fora da tela, do foco e dos cliques).
+     - Aberto = fundo branco sólido, sem opacity nem fade: nunca fica
+       translúcido, nem durante a abertura. */
   .main-nav {
-    position: fixed;
-    inset: var(--header-height) 0 0 0;
-    padding: 1.5rem;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 95;
+    height: calc(100vh - var(--header-height));
+    height: calc(100dvh - var(--header-height));
+    padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
+    display: none;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    background: var(--surface);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background-color: #ffffff;
     border-top: 1px solid var(--border);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-0.5rem);
-    transition: opacity 200ms ease, transform 200ms var(--ease), visibility 200ms;
+    box-shadow: var(--shadow);
+    opacity: 1;
   }
 
   .main-nav.is-open {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
+    display: flex;
   }
 
   .main-nav a:not(.button) {
